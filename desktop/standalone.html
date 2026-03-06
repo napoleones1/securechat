@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecureChat - Browser Version</title>
+  <link rel="stylesheet" href="styles/main.css?v=3">
+</head>
+<body>
+  <div id="app">
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="screen">
+      <div class="auth-container">
+        <h1>SecureChat</h1>
+        <div id="login-form" class="auth-form">
+          <h2>Login</h2>
+          <input type="text" id="login-email" placeholder="Email or Username (@username)" />
+          <input type="password" id="login-password" placeholder="Password" />
+          <button id="login-btn">Login</button>
+          <p>Don't have an account? <a href="#" id="show-register">Register</a></p>
+        </div>
+        <div id="register-form" class="auth-form hidden">
+          <h2>Register</h2>
+          <input type="text" id="register-name" placeholder="Display Name" />
+          <div style="position: relative;">
+            <input type="text" id="register-username" placeholder="username" style="padding-left: 30px;" />
+            <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #666; font-weight: 600;">@</span>
+            <div id="username-feedback" style="font-size: 12px; margin-top: 4px; display: none;"></div>
+          </div>
+          <input type="email" id="register-email" placeholder="Email" />
+          <input type="password" id="register-password" placeholder="Password" />
+          <button id="register-btn">Register</button>
+          <p>Already have an account? <a href="#" id="show-login">Login</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Screen -->
+    <div id="main-screen" class="screen hidden">
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <h2>Chats</h2>
+          <button id="new-chat-btn" class="icon-btn">+</button>
+        </div>
+        <div class="search-container">
+          <input type="text" id="search-input" placeholder="Search..." />
+        </div>
+        <div id="chats-list" class="chats-list"></div>
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <img id="user-avatar" src="" alt="Avatar" class="avatar-small" />
+            <span id="user-name" style="cursor: pointer;"></span>
+          </div>
+          <button id="profile-btn" class="icon-btn" title="Profile">👤</button>
+          <button id="logout-btn" class="icon-btn" title="Logout">⎋</button>
+        </div>
+      </div>
+
+      <div class="chat-area">
+        <div id="empty-state" class="empty-state">
+          <h3>Select a chat to start messaging</h3>
+        </div>
+        <div id="chat-container" class="chat-container hidden">
+          <div class="chat-header">
+            <div class="chat-info">
+              <img id="chat-avatar" src="" alt="Avatar" class="avatar-small" />
+              <div>
+                <h3 id="chat-name"></h3>
+                <span id="chat-status" class="status"></span>
+              </div>
+            </div>
+          </div>
+          <div id="messages-container" class="messages-container"></div>
+          <div class="message-input-container">
+            <button id="attach-btn" class="icon-btn">📎</button>
+            <input type="text" id="message-input" placeholder="Type a message..." />
+            <button id="send-btn" class="send-btn">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Chat Modal -->
+    <div id="new-chat-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>New Chat</h3>
+          <button id="close-modal-btn" class="close-btn">×</button>
+        </div>
+        <input type="text" id="user-search-input" placeholder="Search users..." />
+        <div id="users-list" class="users-list"></div>
+      </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Profile</h3>
+          <button id="close-profile-btn" class="close-btn">×</button>
+        </div>
+        <div style="padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <div style="position: relative; display: inline-block; margin-bottom: 10px; width: 100px; height: 100px;">
+              <!-- Avatar Placeholder (behind) -->
+              <div id="avatar-placeholder" 
+                   style="position: absolute; top: 0; left: 0; width: 100px; height: 100px; border-radius: 50%; cursor: pointer; border: 3px solid #007AFF; background: #007AFF; color: white; font-size: 36px; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 1;"
+                   onclick="document.getElementById('avatar-input').click()">
+              </div>
+              <!-- Avatar Image (in front) -->
+              <img id="profile-avatar" 
+                   src="" 
+                   alt="" 
+                   style="position: absolute; top: 0; left: 0; width: 100px; height: 100px; border-radius: 50%; cursor: pointer; border: 3px solid #007AFF; object-fit: cover; background: #f0f0f0; display: none; z-index: 2;" 
+                   onclick="document.getElementById('avatar-input').click()" />
+            </div>
+            <input type="file" id="avatar-input" accept="image/*" style="display: none;" />
+            <p style="font-size: 12px; color: #666; margin: 0;">Click avatar to change</p>
+          </div>
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Display Name</label>
+            <input type="text" id="profile-name" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" placeholder="Your display name" />
+          </div>
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Username</label>
+            <div style="position: relative;">
+              <input type="text" id="profile-username" style="width: 100%; padding: 10px; padding-left: 30px; border: 1px solid #ddd; border-radius: 8px;" placeholder="username" />
+              <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #666; font-weight: 600;">@</span>
+              <div id="profile-username-feedback" style="font-size: 12px; margin-top: 4px; display: none;"></div>
+            </div>
+          </div>
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Email</label>
+            <input type="email" id="profile-email" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #f5f5f5;" disabled />
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Bio</label>
+            <textarea id="profile-bio" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" placeholder="Tell us about yourself..."></textarea>
+          </div>
+          <button id="save-profile-btn" style="width: 100%; padding: 12px; background: #007AFF; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+  <script src="src/config/api-browser.js?v=6"></script>
+  <script src="src/services/socketService.js?v=6"></script>
+  <script src="src/services/callService.js?v=6"></script>
+  <script src="src/app.js?v=6"></script>
+</body>
+</html>

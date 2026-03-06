@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecureChat</title>
+  <link rel="stylesheet" href="styles/main.css?v=3">
+</head>
+<body>
+  <div id="app">
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="screen">
+      <div class="auth-container">
+        <h1>SecureChat</h1>
+        <div id="login-form" class="auth-form">
+          <h2>Login</h2>
+          <input type="text" id="login-email" placeholder="Email or Username (@username)" />
+          <input type="password" id="login-password" placeholder="Password" />
+          <button id="login-btn">Login</button>
+          <p>Don't have an account? <a href="#" id="show-register">Register</a></p>
+        </div>
+        <div id="register-form" class="auth-form hidden">
+          <h2>Register</h2>
+          <input type="text" id="register-name" placeholder="Display Name" />
+          <div style="position: relative;">
+            <input type="text" id="register-username" placeholder="Username (e.g., @haikal)" style="padding-left: 30px;" />
+            <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #666; font-weight: 600;">@</span>
+            <div id="username-feedback" style="font-size: 12px; margin-top: 4px; display: none;"></div>
+          </div>
+          <input type="email" id="register-email" placeholder="Email" />
+          <input type="password" id="register-password" placeholder="Password" />
+          <button id="register-btn">Register</button>
+          <p>Already have an account? <a href="#" id="show-login">Login</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Screen -->
+    <div id="main-screen" class="screen hidden">
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button id="tab-chats" class="tab-btn active" style="background: none; border: none; color: #007AFF; font-weight: 600; cursor: pointer; padding: 5px 10px;">Chats</button>
+            <button id="tab-calls" class="tab-btn" style="background: none; border: none; color: #666; font-weight: 600; cursor: pointer; padding: 5px 10px;">Calls</button>
+          </div>
+          <button id="new-chat-btn" class="icon-btn">+</button>
+        </div>
+        <div class="search-container">
+          <input type="text" id="search-input" placeholder="Search..." />
+        </div>
+        <div id="chats-list" class="chats-list"></div>
+        <div id="calls-list" class="chats-list hidden"></div>
+        <div class="sidebar-footer">
+          <div class="user-info" id="current-user-info" style="cursor: pointer;">
+            <img id="user-avatar" src="" alt="Avatar" class="avatar-small" />
+            <span id="user-name" style="cursor: pointer;"></span>
+          </div>
+          <button id="admin-panel-btn" class="icon-btn" title="Admin Panel" style="display: none;">⚙️</button>
+          <button id="logout-btn" class="icon-btn" title="Logout">⎋</button>
+        </div>
+      </div>
+
+      <div class="chat-area">
+        <div id="empty-state" class="empty-state">
+          <h3>Select a chat to start messaging</h3>
+        </div>
+        <div id="chat-container" class="chat-container hidden">
+          <div class="chat-header">
+            <div class="chat-info" id="chat-header-info" style="cursor: pointer;">
+              <img id="chat-avatar" src="" alt="Avatar" class="avatar-small" />
+              <div>
+                <h3 id="chat-name"></h3>
+                <span id="chat-status" class="status"></span>
+              </div>
+            </div>
+          </div>
+          <div id="messages-container" class="messages-container"></div>
+          
+          <!-- Attach menu -->
+          <div id="attach-menu" class="attach-menu hidden">
+            <div class="attach-menu-item" id="attach-image">
+              <span class="attach-icon">🖼️</span>
+              <span>Image</span>
+            </div>
+            <div class="attach-menu-item" id="attach-video">
+              <span class="attach-icon">🎥</span>
+              <span>Video</span>
+            </div>
+            <div class="attach-menu-item" id="attach-audio">
+              <span class="attach-icon">🎤</span>
+              <span>Voice Message</span>
+            </div>
+            <div class="attach-menu-item" id="attach-file">
+              <span class="attach-icon">📄</span>
+              <span>File</span>
+            </div>
+          </div>
+          
+          <div class="message-input-container">
+            <button id="attach-btn" class="icon-btn" title="Attach file">📎</button>
+            <input type="text" id="message-input" placeholder="Type a message..." />
+            <button id="send-btn" class="send-btn">Send</button>
+            <button id="voice-btn" class="icon-btn voice-btn" title="Voice message">🎤</button>
+          </div>
+          
+          <!-- Voice recording UI -->
+          <div id="voice-recording-ui" class="voice-recording-ui hidden">
+            <div class="voice-recording-content">
+              <div class="voice-cancel-zone">
+                <span class="cancel-icon">❌</span>
+                <span class="cancel-text">Slide to cancel</span>
+              </div>
+              <div class="voice-recording-info">
+                <span class="recording-dot"></span>
+                <span id="recording-timer" class="recording-timer">0:00</span>
+              </div>
+              <div class="voice-mic-icon">🎤</div>
+            </div>
+          </div>
+          
+          <!-- Hidden file inputs -->
+          <input type="file" id="image-input" accept="image/*" style="display: none;" />
+          <input type="file" id="video-input" accept="video/*" style="display: none;" />
+          <input type="file" id="file-input" accept="*" style="display: none;" />
+        </div>
+      </div>
+    </div>
+
+    <!-- New Chat Modal -->
+    <div id="new-chat-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="new-chat-title">New Chat</h3>
+          <button id="close-modal-btn" class="close-btn">×</button>
+        </div>
+        <div class="modal-body">
+          <!-- Tab buttons -->
+          <div class="chat-tabs">
+            <button id="tab-direct" class="chat-tab active">Direct Chat</button>
+            <button id="tab-group" class="chat-tab">New Group</button>
+          </div>
+          
+          <!-- Direct Chat Tab -->
+          <div id="direct-chat-content" class="tab-content">
+            <div style="padding: 20px;">
+              <input type="text" id="user-search-input" placeholder="Search users..." style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; box-sizing: border-box; outline: none; margin-bottom: 15px;" />
+              <div id="users-list" class="users-list"></div>
+            </div>
+          </div>
+          
+          <!-- Group Chat Tab -->
+          <div id="group-chat-content" class="tab-content hidden">
+            <div style="padding: 20px;">
+              <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #555;">Group Name</label>
+                <input type="text" id="group-name-input" placeholder="Enter group name..." style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; box-sizing: border-box; outline: none;" />
+              </div>
+              
+              <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #555;">Add Members (min. 1)</label>
+                <input type="text" id="group-member-search" placeholder="Search users..." style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; box-sizing: border-box; outline: none;" />
+              </div>
+              
+              <div id="selected-members" class="selected-members" style="margin-bottom: 15px;"></div>
+              
+              <div id="group-users-list" class="users-list" style="max-height: 250px; margin-bottom: 20px; overflow-y: auto;"></div>
+              
+              <button id="create-group-btn" class="create-group-btn" disabled>Create Group</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Profile</h3>
+          <button id="close-profile-btn" class="close-btn">×</button>
+        </div>
+        <div class="modal-body">
+          <div style="padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <div style="position: relative; display: inline-block; margin-bottom: 10px; width: 100px; height: 100px;">
+                <!-- Avatar Placeholder (behind) -->
+                <div id="avatar-placeholder" 
+                     style="position: absolute; top: 0; left: 0; width: 100px; height: 100px; border-radius: 50%; cursor: pointer; border: 3px solid #007AFF; background: #007AFF; color: white; font-size: 36px; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 1;"
+                     onclick="document.getElementById('avatar-input').click()">
+                </div>
+                <!-- Avatar Image (in front) -->
+                <img id="profile-avatar" 
+                     src="" 
+                     alt="" 
+                     style="position: absolute; top: 0; left: 0; width: 100px; height: 100px; border-radius: 50%; cursor: pointer; border: 3px solid #007AFF; object-fit: cover; background: #f0f0f0; display: none; z-index: 2;" 
+                     onclick="document.getElementById('avatar-input').click()" />
+              </div>
+              <input type="file" id="avatar-input" accept="image/*" style="display: none;" />
+              <p style="font-size: 12px; color: #666; margin: 0;">Click avatar to change</p>
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px; font-weight: 600;">Display Name</label>
+              <input type="text" id="profile-name" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" placeholder="Your display name" />
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px; font-weight: 600;">Username</label>
+              <div style="position: relative;">
+                <input type="text" id="profile-username" style="width: 100%; padding: 10px; padding-left: 30px; border: 1px solid #ddd; border-radius: 8px;" placeholder="username" />
+                <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #666; font-weight: 600;">@</span>
+                <div id="profile-username-feedback" style="font-size: 12px; margin-top: 4px; display: none;"></div>
+              </div>
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px; font-weight: 600;">Email</label>
+              <input type="email" id="profile-email" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #f5f5f5;" disabled />
+            </div>
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; margin-bottom: 5px; font-weight: 600;">Bio</label>
+              <textarea id="profile-bio" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" placeholder="Tell us about yourself..."></textarea>
+            </div>
+            <button id="save-profile-btn" style="width: 100%; padding: 12px; background: #007AFF; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Info Modal (View Only) -->
+    <div id="user-info-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>User Info</h3>
+          <button id="close-user-info-btn" class="close-btn">×</button>
+        </div>
+        <div class="modal-body">
+          <div style="padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <div style="position: relative; display: inline-block; margin-bottom: 10px; width: 100px; height: 100px;">
+                <!-- Avatar Placeholder (behind) -->
+                <div id="user-info-avatar-placeholder" 
+                     style="position: absolute; top: 0; left: 0; width: 100px; height: 100px; border-radius: 50%; border: 3px solid #007AFF; background: #007AFF; color: white; font-size: 36px; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 1;">
+                </div>
+                <!-- Avatar Image (in front) -->
+                <img id="user-info-avatar" 
+                     src="" 
+                     alt="" 
+                     style="position: absolute; top: 0; left: 0; width: 100px; height: 100px; border-radius: 50%; border: 3px solid #007AFF; object-fit: cover; background: #f0f0f0; display: none; z-index: 2;" />
+              </div>
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Username</label>
+              <div id="user-info-username" style="padding: 10px; background: #f5f5f5; border-radius: 8px; font-size: 16px;"></div>
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Email</label>
+              <div id="user-info-email" style="padding: 10px; background: #f5f5f5; border-radius: 8px; font-size: 16px;"></div>
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Bio</label>
+              <div id="user-info-bio" style="padding: 10px; background: #f5f5f5; border-radius: 8px; min-height: 60px; font-size: 16px;"></div>
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Status</label>
+              <div id="user-info-status" style="padding: 10px; background: #f5f5f5; border-radius: 8px; font-size: 16px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+  <script src="src/config/api.js?v=6"></script>
+  <script src="src/services/socketService.js?v=6"></script>
+  <script src="src/services/callService.js?v=6"></script>
+  <script src="src/app.js?v=6"></script>
+</body>
+</html>
+
+    <!-- Group Info Modal -->
+    <div id="group-info-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Group Info</h3>
+          <button id="close-group-info-btn" class="close-btn">×</button>
+        </div>
+        <div class="modal-body">
+          <div style="padding: 20px;">
+            <!-- Group Avatar -->
+            <div style="text-align: center; margin-bottom: 20px;">
+              <div style="position: relative; display: inline-block; width: 100px; height: 100px;">
+                <div id="group-info-avatar-placeholder" 
+                     style="position: absolute; top: 0; left: 0; width: 100px; height: 100px; border-radius: 50%; border: 3px solid #007AFF; background: #007AFF; color: white; font-size: 36px; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 1;">
+                </div>
+                <img id="group-info-avatar" 
+                     src="" 
+                     alt="" 
+                     style="position: absolute; top: 0; left: 0; width: 100px; height: 100px; border-radius: 50%; border: 3px solid #007AFF; object-fit: cover; background: #f0f0f0; display: none; z-index: 2;" />
+                <button id="group-avatar-upload-btn" 
+                        style="position: absolute; bottom: 0; right: 0; width: 32px; height: 32px; border-radius: 50%; background: #007AFF; color: white; border: 2px solid white; cursor: pointer; display: none; z-index: 3; font-size: 16px; align-items: center; justify-content: center;">
+                  📷
+                </button>
+                <input type="file" id="group-avatar-input" accept="image/*" style="display: none;" />
+              </div>
+            </div>
+            
+            <!-- Group Name -->
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Group Name</label>
+              <input type="text" id="group-info-name" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;" disabled />
+            </div>
+            
+            <!-- Group Bio -->
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Group Description</label>
+              <textarea id="group-info-bio" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;" placeholder="Add group description..." disabled></textarea>
+            </div>
+            
+            <!-- Save Button (only for admin) -->
+            <button id="save-group-info-btn" class="send-btn" style="width: 100%; margin-bottom: 10px; display: none;">Save Changes</button>
+            
+            <!-- Leave Group Button -->
+            <button id="leave-group-btn" class="send-btn" style="width: 100%; margin-bottom: 20px; background: #f44336; display: none;">
+              🚪 Leave Group
+            </button>
+            
+            <!-- Members Section -->
+            <div style="margin-bottom: 15px;">
+              <h4 style="margin-bottom: 10px; color: #333;">Members (<span id="group-members-count">0</span>)</h4>
+              <div id="group-members-list" style="max-height: 300px; overflow-y: auto;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="admin-panel-modal" class="modal hidden">
+      <div class="modal-content" style="max-width: 900px; width: 90%;">
+        <div class="modal-header">
+          <h3>🛡️ Admin Panel</h3>
+          <button id="close-admin-panel-btn" class="close-btn">×</button>
+        </div>
+        <div class="modal-body">
+          <div style="padding: 20px;">
+            <!-- Tabs -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee;">
+              <button id="admin-tab-users" class="admin-tab active" style="padding: 10px 20px; border: none; background: none; cursor: pointer; font-weight: 600; border-bottom: 3px solid #007AFF;">
+                Users
+              </button>
+              <button id="admin-tab-groups" class="admin-tab" style="padding: 10px 20px; border: none; background: none; cursor: pointer; font-weight: 600; border-bottom: 3px solid transparent;">
+                Groups
+              </button>
+            </div>
+            
+            <!-- Users Tab Content -->
+            <div id="admin-users-tab-content">
+              <!-- Search Users -->
+              <div style="margin-bottom: 20px;">
+                <input type="text" id="admin-search-input" placeholder="Search users..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;" />
+              </div>
+              
+              <!-- Users List -->
+              <div id="admin-users-list" style="max-height: 500px; overflow-y: auto;"></div>
+            </div>
+            
+            <!-- Groups Tab Content -->
+            <div id="admin-groups-tab-content" style="display: none;">
+              <!-- Search Groups -->
+              <div style="margin-bottom: 20px;">
+                <input type="text" id="admin-groups-search-input" placeholder="Search groups..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;" />
+              </div>
+              
+              <!-- Groups List -->
+              <div id="admin-groups-list" style="max-height: 500px; overflow-y: auto;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Action Modal -->
+    <div id="user-action-modal" class="modal hidden">
+      <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+          <h3 id="user-action-title">User Actions</h3>
+          <button id="close-user-action-btn" class="close-btn">×</button>
+        </div>
+        <div class="modal-body">
+          <div style="padding: 20px;">
+            <!-- User Info -->
+            <div style="text-align: center; margin-bottom: 20px;">
+              <img id="action-user-avatar" src="" alt="Avatar" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px;" />
+              <h3 id="action-user-name" style="margin: 5px 0;"></h3>
+              <p id="action-user-email" style="color: #666; margin: 5px 0;"></p>
+              <div id="action-user-badges" style="margin: 10px 0;"></div>
+            </div>
+            
+            <!-- Actions -->
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <button id="action-verify-btn" class="send-btn" style="background: #4CAF50;">
+                ✓ Verify User
+              </button>
+              <button id="action-unverify-btn" class="send-btn" style="background: #FF9800; display: none;">
+                Remove Verification
+              </button>
+              <button id="action-warn-btn" class="send-btn" style="background: #FF9800;">
+                ⚠️ Warn User
+              </button>
+              <button id="action-ban-btn" class="send-btn" style="background: #f44336;">
+                🚫 Ban User
+              </button>
+              <button id="action-unban-btn" class="send-btn" style="background: #4CAF50; display: none;">
+                ✓ Unban User
+              </button>
+            </div>
+            
+            <!-- Warnings List -->
+            <div id="user-warnings-section" style="margin-top: 20px; display: none;">
+              <h4 style="margin-bottom: 10px;">Warnings:</h4>
+              <div id="user-warnings-list" style="max-height: 200px; overflow-y: auto;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Group Action Modal (Admin) -->
+    <div id="group-action-modal" class="modal hidden">
+      <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+          <h3 id="group-action-title">Group Management</h3>
+          <button id="close-group-action-btn" class="close-btn">×</button>
+        </div>
+        <div class="modal-body">
+          <div style="padding: 20px;">
+            <!-- Group Info -->
+            <div style="text-align: center; margin-bottom: 20px;">
+              <img id="action-group-avatar" src="" alt="Avatar" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px;" />
+              <h3 id="action-group-name" style="margin: 5px 0;"></h3>
+              <p id="action-group-members" style="color: #666; margin: 5px 0;"></p>
+            </div>
+            
+            <!-- Actions -->
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+              <button id="action-join-group-btn" class="send-btn" style="background: #4CAF50;">
+                ✓ Join Group
+              </button>
+              <button id="action-view-group-btn" class="send-btn" style="background: #2196F3;">
+                👁️ View Group
+              </button>
+            </div>
+            
+            <!-- Members List -->
+            <div>
+              <h4 style="margin-bottom: 10px;">Members:</h4>
+              <div id="group-action-members-list" style="max-height: 300px; overflow-y: auto;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+

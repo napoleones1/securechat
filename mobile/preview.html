@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureChat Mobile Preview</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #000;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 30px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 1000;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Splash Screen */
+        .splash-screen {
+            background: #075E54;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo-circle {
+            width: 100px;
+            height: 100px;
+            background: #25D366;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-text {
+            font-size: 40px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .app-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .tagline {
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .loader {
+            margin-top: 30px;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: #25D366;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Login Screen */
+        .login-screen {
+            background: #fff;
+            padding: 20px;
+            justify-content: center;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 5px;
+        }
+
+        .login-subtitle {
+            font-size: 16px;
+            color: #667781;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            background: #F0F2F5;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .input-container i {
+            color: #667781;
+            margin-right: 10px;
+        }
+
+        .input-container input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: #075E54;
+            color: #fff;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            background: #064e46;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #667781;
+        }
+
+        .footer-link {
+            color: #075E54;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Main Screen */
+        .main-screen {
+            background: #fff;
+        }
+
+        .header {
+            background: #075E54;
+            color: #fff;
+            padding: 15px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header-icons i {
+            cursor: pointer;
+        }
+
+        .tabs {
+            display: flex;
+            background: #075E54;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .tab.active {
+            color: #fff;
+            border-bottom-color: #fff;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #F0F2F5;
+            margin: 10px;
+            padding: 10px 15px;
+            border-radius: 25px;
+        }
+
+        .search-bar i {
+            color: #667781;
+            margin-right: 10px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            outline: none;
+        }
+
+        /* Chat Item */
+        .chat-item {
+            display: flex;
+            padding: 15px;
+            border-bottom: 1px solid #E9EDEF;
+            cursor: pointer;
+        }
+
+        .chat-item:hover {
+            background: #F0F2F5;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #075E54;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 20px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .chat-info {
+            flex: 1;
+            margin-left: 15px;
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .chat-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        .chat-time {
+            font-size: 12px;
+            color: #667781;
+        }
+
+        .chat-message {
+            font-size: 14px;
+            color: #667781;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: #8696A0;
+            margin-bottom: 15px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667781;
+            margin-bottom: 5px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            color: #8696A0;
+        }
+
+        /* FAB */
+        .fab {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: #25D366;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
+
+        .fab:hover {
+            background: #20bd5a;
+        }
+
+        /* Settings */
+        .profile-section {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #E9EDEF;
+            cursor: pointer;
+        }
+
+        .profile-section:hover {
+            background: #F0F2F5;
+        }
+
+        .profile-info {
+            flex: 1;
+            margin-left: 15px;
+        }
+
+        .profile-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 3px;
+        }
+
+        .profile-username {
+            font-size: 14px;
+            color: #667781;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #E9EDEF;
+            cursor: pointer;
+        }
+
+        .setting-item:hover {
+            background: #F0F2F5;
+        }
+
+        .setting-item i {
+            width: 24px;
+            color: #000;
+        }
+
+        .setting-item span {
+            flex: 1;
+            margin-left: 15px;
+            font-size: 16px;
+            color: #000;
+        }
+
+        .setting-item .chevron {
+            color: #8696A0;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #667781;
+            padding: 10px 20px;
+            background: #F0F2F5;
+        }
+
+        .version {
+            text-align: center;
+            font-size: 12px;
+            color: #8696A0;
+            padding: 20px;
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px 20px;
+            border-radius: 30px;
+        }
+
+        .nav-btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .nav-btn:hover {
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+            
+            <!-- Splash Screen -->
+            <div class="screen splash-screen active" id="splash">
+                <div class="logo-circle">
+                    <div class="logo-text">SC</div>
+                </div>
+                <div class="app-name">SecureChat</div>
+                <div class="tagline">Secure messaging & calls</div>
+                <div class="loader"></div>
+            </div>
+
+            <!-- Login Screen -->
+            <div class="screen login-screen" id="login">
+                <div class="login-header">
+                    <div class="logo-circle" style="margin: 0 auto 20px;">
+                        <div class="logo-text">SC</div>
+                    </div>
+                    <div class="login-title">Welcome Back</div>
+                    <div class="login-subtitle">Sign in to continue</div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-container">
+                        <i class="fas fa-user"></i>
+                        <input type="text" placeholder="Email or Username" id="loginEmail">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-container">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" placeholder="Password" id="loginPassword">
+                        <i class="fas fa-eye" style="cursor: pointer;"></i>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="doLogin()">Login</button>
+
+                <div class="footer-text">
+                    Don't have an account? <span class="footer-link" onclick="showScreen('register')">Register</span>
+                </div>
+            </div>
+
+            <!-- Register Screen -->
+            <div class="screen login-screen" id="register">
+                <div class="login-header">
+                    <div class="logo-circle" style="margin: 0 auto 20px;">
+                        <div class="logo-text">SC</div>
+                    </div>
+                    <div class="login-title">Create Account</div>
+                    <div class="login-subtitle">Sign up to get started</div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-container">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="Email">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-container">
+                        <i class="fas fa-user"></i>
+                        <input type="text" placeholder="Full Name">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-container">
+                        <i class="fas fa-at"></i>
+                        <span style="margin-right: 5px;">@</span>
+                        <input type="text" placeholder="username">
+                        <i class="fas fa-check-circle" style="color: #4CAF50;"></i>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-container">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" placeholder="Password">
+                        <i class="fas fa-eye" style="cursor: pointer;"></i>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="showScreen('login')">Register</button>
+
+                <div class="footer-text">
+                    Already have an account? <span class="footer-link" onclick="showScreen('login')">Login</span>
+                </div>
+            </div>
+
+            <!-- Main Screen -->
+            <div class="screen main-screen" id="main">
+                <div class="header">
+                    <div class="header-top">
+                        <div class="header-title">SecureChat</div>
+                        <div class="header-icons">
+                            <i class="fas fa-search"></i>
+                            <i class="fas fa-ellipsis-v"></i>
+                        </div>
+                    </div>
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('chats')">
+                            <i class="fas fa-comment"></i> Chats
+                        </div>
+                        <div class="tab" onclick="switchTab('calls')">
+                            <i class="fas fa-phone"></i> Calls
+                        </div>
+                        <div class="tab" onclick="switchTab('settings')">
+                            <i class="fas fa-cog"></i> Settings
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content">
+                    <!-- Chats Tab -->
+                    <div class="tab-content" id="chats-content">
+                        <div class="search-bar">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search chats...">
+                        </div>
+
+                        <div class="chat-item">
+                            <div class="avatar">JD</div>
+                            <div class="chat-info">
+                                <div class="chat-header">
+                                    <div class="chat-name">John Doe</div>
+                                    <div class="chat-time">12:30</div>
+                                </div>
+                                <div class="chat-message">Hey, how are you?</div>
+                            </div>
+                        </div>
+
+                        <div class="chat-item">
+                            <div class="avatar">JS</div>
+                            <div class="chat-info">
+                                <div class="chat-header">
+                                    <div class="chat-name">Jane Smith</div>
+                                    <div class="chat-time">11:45</div>
+                                </div>
+                                <div class="chat-message">See you tomorrow!</div>
+                            </div>
+                        </div>
+
+                        <div class="chat-item">
+                            <div class="avatar">TG</div>
+                            <div class="chat-info">
+                                <div class="chat-header">
+                                    <div class="chat-name">Team Group</div>
+                                    <div class="chat-time">10:20</div>
+                                </div>
+                                <div class="chat-message">Meeting at 3 PM</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calls Tab -->
+                    <div class="tab-content" id="calls-content" style="display: none;">
+                        <div class="empty-state">
+                            <i class="fas fa-phone"></i>
+                            <h3>No calls yet</h3>
+                            <p>Call history will appear here</p>
+                        </div>
+                    </div>
+
+                    <!-- Settings Tab -->
+                    <div class="tab-content" id="settings-content" style="display: none;">
+                        <div class="profile-section">
+                            <div class="avatar" style="width: 60px; height: 60px; font-size: 24px;">U</div>
+                            <div class="profile-info">
+                                <div class="profile-name">User Name</div>
+                                <div class="profile-username">@username</div>
+                            </div>
+                            <i class="fas fa-chevron-right" style="color: #8696A0;"></i>
+                        </div>
+
+                        <div class="section-title">Account</div>
+                        <div class="setting-item">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                            <i class="fas fa-chevron-right chevron"></i>
+                        </div>
+                        <div class="setting-item">
+                            <i class="fas fa-lock"></i>
+                            <span>Privacy</span>
+                            <i class="fas fa-chevron-right chevron"></i>
+                        </div>
+                        <div class="setting-item">
+                            <i class="fas fa-bell"></i>
+                            <span>Notifications</span>
+                            <i class="fas fa-chevron-right chevron"></i>
+                        </div>
+
+                        <div class="section-title">App</div>
+                        <div class="setting-item">
+                            <i class="fas fa-question-circle"></i>
+                            <span>Help</span>
+                            <i class="fas fa-chevron-right chevron"></i>
+                        </div>
+                        <div class="setting-item">
+                            <i class="fas fa-info-circle"></i>
+                            <span>About</span>
+                            <i class="fas fa-chevron-right chevron"></i>
+                        </div>
+
+                        <div class="section-title"></div>
+                        <div class="setting-item" onclick="showScreen('login')">
+                            <i class="fas fa-sign-out-alt" style="color: #f44336;"></i>
+                            <span style="color: #f44336;">Logout</span>
+                            <i class="fas fa-chevron-right chevron"></i>
+                        </div>
+
+                        <div class="version">Version 0.1.0-alpha</div>
+                    </div>
+                </div>
+
+                <div class="fab">
+                    <i class="fas fa-plus"></i>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+        <button class="nav-btn" onclick="showScreen('splash')">Splash</button>
+        <button class="nav-btn" onclick="showScreen('login')">Login</button>
+        <button class="nav-btn" onclick="showScreen('register')">Register</button>
+        <button class="nav-btn" onclick="showScreen('main')">Main</button>
+    </div>
+
+    <script>
+        // Auto transition from splash to login
+        setTimeout(() => {
+            if (document.getElementById('splash').classList.contains('active')) {
+                showScreen('login');
+            }
+        }, 2000);
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function switchTab(tabName) {
+            // Update tab active state
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.closest('.tab').classList.add('active');
+
+            // Show corresponding content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            document.getElementById(tabName + '-content').style.display = 'block';
+        }
+
+        function doLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (email && password) {
+                showScreen('main');
+            } else {
+                alert('Please fill in all fields');
+            }
+        }
+    </script>
+</body>
+</html>
