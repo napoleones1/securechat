@@ -17,8 +17,6 @@ import NewGroupScreen from './src/screens/NewGroupScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import UserInfoScreen from './src/screens/UserInfoScreen';
 import GroupInfoScreen from './src/screens/GroupInfoScreen';
-import CallScreen from './src/screens/CallScreen';
-import IncomingCallScreen from './src/screens/IncomingCallScreen';
 
 const Stack = createStackNavigator();
 
@@ -94,16 +92,6 @@ const App = () => {
                 name="GroupInfo"
                 component={GroupInfoScreen}
                 options={{ title: 'Group Info' }}
-              />
-              <Stack.Screen
-                name="Call"
-                component={CallScreen}
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="IncomingCall"
-                component={IncomingCallScreen}
-                options={{ headerShown: false }}
               />
             </Stack.Navigator>
           </NavigationContainer>

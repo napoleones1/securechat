@@ -3,7 +3,6 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { View, StyleSheet, SafeAreaView, TouchableOpacity, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ChatsListScreen from '../screens/ChatsListScreen';
-import CallsListScreen from '../screens/CallsListScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import Colors from '../styles/colors';
 
@@ -39,15 +38,6 @@ const MainTabs = ({ navigation }) => {
           options={{
             tabBarIcon: ({ color }) => (
               <MaterialCommunityIcons name="message-text" size={20} color={color} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Calls"
-          component={CallsListScreen}
-          options={{
-            tabBarIcon: ({ color }) => (
-              <MaterialCommunityIcons name="phone" size={20} color={color} />
             ),
           }}
         />
