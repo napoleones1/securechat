@@ -23,7 +23,7 @@ jobs:
 
       - name: 📦 Install dependencies
         working-directory: SecureChatMinimal
-        run: npm ci
+        run: npm install
 
       - name: 🏗 Setup EAS
         run: npm install -g eas-cli
