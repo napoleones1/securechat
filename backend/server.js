@@ -71,7 +71,13 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📡 Socket.io ready for connections`);
-});
+// Only start server if not in Vercel (serverless)
+if (process.env.VERCEL !== '1') {
+  server.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📡 Socket.io ready for connections`);
+  });
+}
+
+// Export for Vercel
+module.exports = app;
