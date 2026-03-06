@@ -298,6 +298,8 @@ This project is licensed under the MIT License.
 ## 👨‍💻 Author
 
 **Muhamad Haikal**
+- GitHub: [@napoleones1](https://github.com/napoleones1)
+- Email: muhamadhaikal.me@gmail.com
 
 ## 🙏 Acknowledgments
 
@@ -308,7 +310,7 @@ This project is licensed under the MIT License.
 
 ## 📞 Support
 
-For support, email your-email@example.com or open an issue on GitHub.
+For support, email muhamadhaikal.me@gmail.com or open an issue on GitHub.
 
 ---
 

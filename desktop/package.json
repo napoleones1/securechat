@@ -35,7 +35,7 @@
     }
   },
   "keywords": ["chat", "messaging", "electron", "webrtc", "video-call", "voice-call", "real-time"],
-  "author": "",
+  "author": "Muhamad Haikal <muhamadhaikal.me@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "electron-store": "^8.1.0"
