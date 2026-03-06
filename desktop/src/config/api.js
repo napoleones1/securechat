@@ -1,5 +1,5 @@
-const API_URL = 'http://localhost:5000';
-const SOCKET_URL = 'http://localhost:5000';
+const API_URL = 'https://securechat-production-d857.up.railway.app';
+const SOCKET_URL = 'https://securechat-production-d857.up.railway.app';
 
 class ApiService {
   constructor() {
