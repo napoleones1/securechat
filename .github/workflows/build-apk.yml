@@ -30,12 +30,10 @@ jobs:
       - name: 🏗 Setup EAS
         run: npm install -g eas-cli
 
-      - name: 🔐 Login to Expo
-        run: |
-          echo "${{ secrets.EXPO_TOKEN }}" | eas login --token-stdin
-
       - name: 🚀 Build APK
         working-directory: SecureChatMinimal
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: eas build --platform android --profile preview --non-interactive
 
       - name: 📱 Get APK URL
